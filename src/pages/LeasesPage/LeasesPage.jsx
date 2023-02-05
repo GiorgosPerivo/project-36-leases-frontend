@@ -61,6 +61,7 @@ const LeasesPage = () => {
         <thead>
           <tr>
             <th scope="col">ID</th>
+            <th scope="col">Electrical ID</th>
             <th scope="col">Address</th>
             <th scope="col">Leaser</th>
             <th scope="col">Tenants</th>
@@ -74,6 +75,7 @@ const LeasesPage = () => {
           {data?.map((lease) => (
             <tr key={lease.id.toString()}>
               <th scope="row">{lease.id}</th>
+              <th scope="row">{lease.electricalId}</th>
               <td>
                 {lease.street + ', ' + lease.postalCode + ',  ' + lease.country}
               </td>
@@ -92,7 +94,11 @@ const LeasesPage = () => {
               </td>
               <td>
                 {user.roles.includes('CREATE_LEASE') && (
-                  <button className="btn btn-info">Edit</button>
+                  <Link to={lease.finalized ? '#' : `/${lease.id}/edit-lease`}>
+                    <button className="btn btn-info" disabled={lease.finalized}>
+                      Edit
+                    </button>
+                  </Link>
                 )}
                 {user.roles.includes('ACCEPT_LEASE') && !lease.finalized ? (
                   <button

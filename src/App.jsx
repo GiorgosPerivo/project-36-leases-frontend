@@ -3,12 +3,16 @@ import { Navigate, Route, Routes } from 'react-router';
 import Layout from './Layout/Layout';
 import LoginPage from './pages/LoginPage/LoginPage';
 import LeasesPage from './pages/LeasesPage/LeasesPage';
+import CreateLeasePage from './pages/CreateLeasePage/CreateLeasePage';
 import { AuthContext } from './providers/authProvider/authProvider';
 
 import './App.css';
+import EditLeasePage from './pages/EditLeasePage/EditLeasePage';
 
 function App() {
-  const { isAuthenticated, user } = useContext(AuthContext);
+  const { isAuthenticated, user, isLoading } = useContext(AuthContext);
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <Routes>
@@ -18,7 +22,10 @@ function App() {
           <>
             <Route index element={<LeasesPage />} />
             {user.roles.includes('CREATE_LEASE') && (
-              <Route path="create-lease" element={<div>Create lease</div>} />
+              <>
+                <Route path="create-lease" element={<CreateLeasePage />} />
+                <Route path=":leaseId/edit-lease" element={<EditLeasePage />} />
+              </>
             )}
           </>
         )}
