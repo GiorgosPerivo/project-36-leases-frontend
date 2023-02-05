@@ -11,3 +11,17 @@ export const getLeasesAPI = async () => {
     return response.data;
   });
 };
+
+export const acceptLeaseAPI = async (leaseId) => {
+  return axiosInstance.put(`/leases/${leaseId}/accept`).then((response) => {
+    return response.data;
+  });
+};
+
+export const addDetailsLeaseAPI = async (leaseId, data) => {
+  return axiosInstance
+    .put(`/leases/${leaseId}/add-details`, { details: data })
+    .then((response) => {
+      return response.data;
+    });
+};

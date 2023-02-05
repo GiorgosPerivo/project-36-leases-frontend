@@ -1,7 +1,11 @@
 import React, { useContext } from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
-import { getLeasesAPI } from '../../api/api';
+import {
+  acceptLeaseAPI,
+  addDetailsLeaseAPI,
+  getLeasesAPI,
+} from '../../api/api';
 import { AuthContext } from '../../providers/authProvider/authProvider';
 
 import './LeasesPage.css';
@@ -9,10 +13,41 @@ import './LeasesPage.css';
 const LeasesPage = () => {
   const { user } = useContext(AuthContext);
 
+  const queryClient = useQueryClient();
+
   const { data } = useQuery({
     queryKey: 'leases',
     queryFn: () => getLeasesAPI(),
   });
+
+  const { mutate: acceptLease } = useMutation({
+    mutationKey: 'acceptLease',
+    mutationFn: (id) => acceptLeaseAPI(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries('leases');
+    },
+  });
+
+  const { mutate: addDetailsLease } = useMutation({
+    mutationKey: 'addDetailsLease',
+    mutationFn: (data) => addDetailsLeaseAPI(data.id, data.details),
+    onSuccess: () => {
+      queryClient.invalidateQueries('leases');
+    },
+  });
+
+  const handleAcceptLease = (id) => {
+    window.confirm('Are you sure you want to accept this lease?') &&
+      acceptLease(id);
+  };
+
+  const handleAddDetailsLease = (id) => {
+    const details = window.prompt('Add details to this lease');
+    console.log('details', details);
+    if (details) {
+      addDetailsLease({ id, details });
+    }
+  };
 
   return (
     <div className="leases-page">
@@ -37,7 +72,7 @@ const LeasesPage = () => {
         </thead>
         <tbody>
           {data?.map((lease) => (
-            <tr>
+            <tr key={lease.id.toString()}>
               <th scope="row">{lease.id}</th>
               <td>
                 {lease.street + ', ' + lease.postalCode + ',  ' + lease.country}
@@ -49,19 +84,34 @@ const LeasesPage = () => {
               <td>{lease.amount}</td>
               <td>{lease.details}</td>
               <td>
-                {lease.isFinalized ? (
+                {lease.finalized ? (
                   <span className="badge bg-success">Yes</span>
                 ) : (
                   <span className="badge bg-danger">No</span>
                 )}
               </td>
-              <td>
+              <td className="d-flex flex-column gap-2">
                 {user.roles.includes('CREATE_LEASE') && (
-                  <button className="btn btn-danger">Delete</button>
+                  <>
+                    <button className="btn btn-info">Edit</button>
+                    <button className="btn btn-danger">Delete</button>
+                  </>
                 )}
-
-                {user.roles.includes('ACCEPT_LEASE') && (
-                  <button className="btn btn-success">Accept</button>
+                {user.roles.includes('ACCEPT_LEASE') && !lease.finalized ? (
+                  <button
+                    onClick={() => handleAcceptLease(lease.id)}
+                    className="btn btn-success"
+                  >
+                    Accept
+                  </button>
+                ) : null}
+                {user.roles.includes('ADD_DETAILS_TO_LEASE') && (
+                  <button
+                    onClick={() => handleAddDetailsLease(lease.id)}
+                    className="btn btn-warning"
+                  >
+                    Add details
+                  </button>
                 )}
               </td>
             </tr>
