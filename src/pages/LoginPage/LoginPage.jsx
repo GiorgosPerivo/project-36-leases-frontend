@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useMutation } from 'react-query';
-import { login } from '../../api/api';
+import { loginAPI } from '../../api/api';
+import { AuthContext } from '../../providers/authProvider/authProvider';
 
 import './LoginPage.css';
 
 const LoginPage = () => {
-  const { mutate } = useMutation({
+  const { login } = useContext(AuthContext);
+  const { mutate, isLoading } = useMutation({
     mutationKey: 'login',
-    mutationFn: (data) => login(data),
+    mutationFn: (data) => loginAPI(data),
+    onSuccess: (data) => {
+      login(data);
+    },
+    onError: (error) => {
+      if (error.response.status === 401) {
+        alert('Invalid credentials!');
+      }
+    },
   });
   const handleSubmit = (e) => {
-    console.log('mpika edw');
     e.preventDefault();
 
     const username = document.getElementById('username').value;
@@ -37,7 +46,11 @@ const LoginPage = () => {
         <input type="password" id="password" className="form-control" />
       </div>
 
-      <button type="submit" className="btn btn-primary mb-4">
+      <button
+        type="submit"
+        className="btn btn-primary mb-4"
+        disabled={isLoading}
+      >
         Sign in
       </button>
     </form>

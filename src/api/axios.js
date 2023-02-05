@@ -4,4 +4,19 @@ const axiosInstance = axios.create({
   baseURL: 'http://localhost:8080/api',
 });
 
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+
+    if (userData) {
+      config.headers.Authorization = `${userData.tokenType} ${userData.accessToken}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;

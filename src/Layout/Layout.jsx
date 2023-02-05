@@ -1,56 +1,35 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Outlet } from 'react-router';
+import { NavLink } from 'react-router-dom';
+import { AuthContext } from '../providers/authProvider/authProvider';
 
 const Layout = () => {
+  const { isAuthenticated, user, logout } = useContext(AuthContext);
+
   return (
     <div className="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-      <header className="mb-auto" th:fragment="header">
+      <header className="mb-auto">
         <div>
-          <h3 className="float-md-start mb-0">Leases catalogue</h3>
+          <h3 className="float-md-start mb-0">Leases application</h3>
           <nav className="nav nav-masthead justify-content-center float-md-end">
-            <a
-              className="nav-link fw-bold py-1 px-0"
-              aria-current="page"
-              href="/"
-              th:href="@{/}"
-            >
-              Home
-            </a>
-            <a className="nav-link fw-bold py-1 px-0" href="/users">
-              Users
-            </a>
-            <a
-              sec:authorize="hasRole('ADMIN')"
-              className="nav-link fw-bold py-1 px-0"
-              href="/roles"
-              th:href="@{/roles}"
-            >
-              Roles
-            </a>
-            <a
-              sec:authorize="hasRole('ADMIN')"
-              className="nav-link fw-bold py-1 px-0"
-              href="/privileges"
-              th:href="@{/privileges}"
-            >
-              Privileges
-            </a>
-            <a
-              sec:authorize="isAuthenticated()"
-              className="nav-link fw-bold py-1 px-0"
-              href="/logout"
-              th:href="@{/logout}"
-            >
-              Logout
-            </a>
-            <a
-              sec:authorize="!isAuthenticated()"
-              className="nav-link fw-bold py-1 px-0"
-              href="/login"
-              th:href="@{/login}"
-            >
-              Login
-            </a>
+            {isAuthenticated && (
+              <>
+                <NavLink className="nav-link fw-bold py-1 px-0" to="/">
+                  Leases
+                </NavLink>
+                <button
+                  className="btn btn-link nav-link fw-bold py-1 px-0"
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+              </>
+            )}
+            {!isAuthenticated && (
+              <NavLink className="nav-link fw-bold py-1 px-0" to="/">
+                Login
+              </NavLink>
+            )}
           </nav>
         </div>
       </header>
@@ -58,6 +37,13 @@ const Layout = () => {
       <main className="px-3">
         <Outlet />
       </main>
+
+      {user && (
+        <footer className="mt-auto text-white-50">
+          You are logged in as: <strong>{user.username}</strong> with the
+          following permissions <strong>{user.roles.join(', ')}</strong>
+        </footer>
+      )}
     </div>
   );
 };

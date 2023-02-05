@@ -1,8 +1,13 @@
 import axiosInstance from './axios';
 
-export const login = async (data) => {
-  console.log('login', data);
+export const loginAPI = async (data) => {
   return axiosInstance.post('/auth/signin', data).then((response) => {
-    console.log(response.data);
+    return response.data;
+  });
+};
+
+export const getLeasesAPI = async () => {
+  return axiosInstance.get('/leases').then((response) => {
+    return response.data;
   });
 };
