@@ -90,12 +90,9 @@ const LeasesPage = () => {
                   <span className="badge bg-danger">No</span>
                 )}
               </td>
-              <td className="d-flex flex-column gap-2">
+              <td>
                 {user.roles.includes('CREATE_LEASE') && (
-                  <>
-                    <button className="btn btn-info">Edit</button>
-                    <button className="btn btn-danger">Delete</button>
-                  </>
+                  <button className="btn btn-info">Edit</button>
                 )}
                 {user.roles.includes('ACCEPT_LEASE') && !lease.finalized ? (
                   <button
